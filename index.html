@@ -13,68 +13,81 @@
     }
     h1 { font-size: 3em; color: #2a9d8f; }
     #chatOutput {
-      margin-top: 30px; font-size: 18px; min-height: 200px;
-      background: #fff8dc; padding: 20px; border-radius: 20px;
-      width: 90%; max-width: 600px; margin: 0 auto;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.2); overflow-y: auto; max-height: 400px;
+      margin-top: 30px;
+      font-size: 18px;
+      min-height: 200px;
+      background: #fff8dc;
+      padding: 20px;
+      border-radius: 20px;
+      width: 90%;
+      max-width: 600px;
+      margin: 0 auto;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+      overflow-y: auto;
+      max-height: 400px;
     }
     button {
-      font-size: 20px; padding: 15px 30px; border-radius: 15px; border: none;
-      background-color: #f4a261; color: white; cursor: pointer;
+      font-size: 20px;
+      padding: 15px 30px;
+      border-radius: 15px;
+      border: none;
+      background-color: #f4a261;
+      color: white;
+      cursor: pointer;
       box-shadow: 0 5px 10px rgba(0,0,0,0.2);
     }
     button:hover { background-color: #e76f51; }
   </style>
 </head>
 <body>
-  <h1>?? PandaBot</h1>
-  <p>??«ö?¡A¥Î¤¤¤å??¡APandaBot ?¥Î¤å¦r©M?­µ¦^µª§A¡I</p>
-  <img src="https://i.imgur.com/4AiXzf8.png" alt="Cute Panda" width="150" style="margin-bottom:20px;">
-  <button id="startButton">?? ?©l²á¤Ñ</button>
+  <h1>ğŸ¼ PandaBot</h1>
+  <p>ç‚¹å‡»æŒ‰é’®ï¼Œç”¨ä¸­æ–‡è®²è¯ï¼ŒPandaBot ä¼šç”¨æ–‡å­—å’Œè¯­éŸ³å›ç­”ä½ ï¼</p>
+  <button id="startButton">ğŸ¤ å¼€å§‹èŠå¤©</button>
   <div id="chatOutput"></div>
 
   <script>
-    // ?­µ??
+    // è¯­éŸ³è¯†åˆ«
     const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
     recognition.lang = 'zh-CN';
     recognition.interimResults = false;
 
     recognition.onresult = (event) => {
       const userText = event.results[0][0].transcript;
-      appendChat('§A', userText);
+      appendChat('ä½ ', userText);
       callServer(userText);
     };
+
     document.getElementById('startButton').onclick = () => recognition.start();
 
-    // ?­µ?¥X
+    // è¯­éŸ³è¾“å‡º
     function speak(text) {
       const utter = new SpeechSynthesisUtterance(text);
       utter.lang = 'zh-CN';
       speechSynthesis.speak(utter);
     }
 
-    // ²á¤Ñ?¥Ü
+    // èŠå¤©æ˜¾ç¤º
     function appendChat(sender, text) {
       const c = document.getElementById('chatOutput');
       c.innerHTML += `<b>${sender}:</b> ${text}<br>`;
       c.scrollTop = c.scrollHeight;
     }
 
-    // ?¥Î Vercel ªº Chat API
+    // è°ƒç”¨ Vercel çš„ Chat API
     async function callServer(message) {
       appendChat('PandaBot', '...');
       try {
         const res = await fetch('/api/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userInput: message })
+          body: JSON.stringify({ query: message })
         });
         const data = await res.json();
-        const reply = data.reply || "?¤£°_¡A§Ú?§vÀ´¡C";
+        const reply = data.reply || "å¯¹ä¸èµ·ï¼Œæˆ‘æ²¡å¬æ‡‚ã€‚";
         appendChat('PandaBot', reply);
         speak(reply);
       } catch (err) {
-        appendChat('PandaBot', 'ªA?¾¹??¡C');
+        appendChat('PandaBot', 'æœåŠ¡å™¨é”™è¯¯ã€‚');
         console.error(err);
       }
     }
