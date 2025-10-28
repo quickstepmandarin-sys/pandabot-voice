@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PandaBot Voice Chat</title>
+  <style>
+    body {
+      font-family: 'Comic Sans MS', sans-serif;
+      text-align: center;
+      padding: 50px;
+      background: linear-gradient(to bottom, #fefcea, #f1da36);
+    }
+    h1 { font-size: 3em; color: #2a9d8f; }
+    #chatOutput {
+      margin-top: 30px; font-size: 18px; min-height: 200px;
+      background: #fff8dc; padding: 20px; border-radius: 20px;
+      width: 90%; max-width: 600px; margin: 0 auto;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2); overflow-y: auto; max-height: 400px;
+    }
+    button {
+      font-size: 20px; padding: 15px 30px; border-radius: 15px; border: none;
+      background-color: #f4a261; color: white; cursor: pointer;
+      box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+    }
+    button:hover { background-color: #e76f51; }
+  </style>
+</head>
+<body>
+  <h1>?? PandaBot</h1>
+  <p>??按?，用中文??，PandaBot ?用文字和?音回答你！</p>
+  <img src="https://i.imgur.com/4AiXzf8.png" alt="Cute Panda" width="150" style="margin-bottom:20px;">
+  <button id="startButton">?? ?始聊天</button>
+  <div id="chatOutput"></div>
+
+  <script>
+    // ?音??
+    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+    recognition.lang = 'zh-CN';
+    recognition.interimResults = false;
+
+    recognition.onresult = (event) => {
+      const userText = event.results[0][0].transcript;
+      appendChat('你', userText);
+      callServer(userText);
+    };
+    document.getElementById('startButton').onclick = () => recognition.start();
+
+    // ?音?出
+    function speak(text) {
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.lang = 'zh-CN';
+      speechSynthesis.speak(utter);
+    }
+
+    // 聊天?示
+    function appendChat(sender, text) {
+      const c = document.getElementById('chatOutput');
+      c.innerHTML += `<b>${sender}:</b> ${text}<br>`;
+      c.scrollTop = c.scrollHeight;
+    }
+
+    // ?用 Vercel 的 Chat API
+    async function callServer(message) {
+      appendChat('PandaBot', '...');
+      try {
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userInput: message })
+        });
+        const data = await res.json();
+        const reply = data.reply || "?不起，我?听懂。";
+        appendChat('PandaBot', reply);
+        speak(reply);
+      } catch (err) {
+        appendChat('PandaBot', '服?器??。');
+        console.error(err);
+      }
+    }
+  </script>
+</body>
+</html>
