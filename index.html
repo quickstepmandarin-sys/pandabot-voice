@@ -11,7 +11,10 @@
       padding: 50px;
       background: linear-gradient(to bottom, #fefcea, #f1da36);
     }
-    h1 { font-size: 3em; color: #2a9d8f; }
+    h1 {
+      font-size: 3em;
+      color: #2a9d8f;
+    }
     #chatOutput {
       margin-top: 30px;
       font-size: 18px;
@@ -36,61 +39,10 @@
       cursor: pointer;
       box-shadow: 0 5px 10px rgba(0,0,0,0.2);
     }
-    button:hover { background-color: #e76f51; }
+    button:hover {
+      background-color: #e76f51;
+    }
   </style>
 </head>
 <body>
-  <h1>🐼 PandaBot</h1>
-  <p>点击按钮，用中文讲话，PandaBot 会用文字和语音回答你！</p>
-  <button id="startButton">🎤 开始聊天</button>
-  <div id="chatOutput"></div>
-
-  <script>
-    // 语音识别
-    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-    recognition.lang = 'zh-CN';
-    recognition.interimResults = false;
-
-    recognition.onresult = (event) => {
-      const userText = event.results[0][0].transcript;
-      appendChat('你', userText);
-      callServer(userText);
-    };
-
-    document.getElementById('startButton').onclick = () => recognition.start();
-
-    // 语音输出
-    function speak(text) {
-      const utter = new SpeechSynthesisUtterance(text);
-      utter.lang = 'zh-CN';
-      speechSynthesis.speak(utter);
-    }
-
-    // 聊天显示
-    function appendChat(sender, text) {
-      const c = document.getElementById('chatOutput');
-      c.innerHTML += `<b>${sender}:</b> ${text}<br>`;
-      c.scrollTop = c.scrollHeight;
-    }
-
-    // 调用 Vercel 的 Chat API
-    async function callServer(message) {
-      appendChat('PandaBot', '...');
-      try {
-        const res = await fetch('/api/chat', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ query: message })
-        });
-        const data = await res.json();
-        const reply = data.reply || "对不起，我没听懂。";
-        appendChat('PandaBot', reply);
-        speak(reply);
-      } catch (err) {
-        appendChat('PandaBot', '服务器错误。');
-        console.error(err);
-      }
-    }
-  </script>
-</body>
-</html>
+  <h1>PandaBot 🐼<
