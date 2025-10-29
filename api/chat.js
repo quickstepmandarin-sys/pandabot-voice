@@ -1,11 +1,7 @@
 export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
-  }
-
   try {
-    const body = req.body || {};
-    const userInput = body.query || "Hello";
+    const body = JSON.parse(req.body || "{}");
+    const userInput = body.userInput || "Hello";
     const conversationId = `conv_${Date.now()}`;
     const contactId = `user_${Math.floor(Math.random() * 1000000)}`;
 
