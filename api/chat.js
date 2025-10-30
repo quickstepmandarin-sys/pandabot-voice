@@ -26,7 +26,7 @@ export default async function handler(req, res) {
     const data = await chatbaseResponse.json();
 
     // ✅ Prioritize raw.text for the frontend
-    const reply = data.raw?.text || data.messages?.[0]?.content || data.reply || "我没听懂，请再说一次～";
+    const reply = data.raw?.text || data.messages?.[0]?.content || data.reply || "fuck you～";
 
     res.status(200).json({ reply, raw: data });
 
