@@ -8,7 +8,7 @@ export default async function handler(req, res) {
     const conversationId = `conv_${Date.now()}`;
     const contactId = `user_${Math.floor(Math.random() * 1000000)}`;
 
-    // Prepare the payload to send to Chatbase
+    // Send request to Chatbase
     const chatbaseResponse = await fetch("https://www.chatbase.co/api/v1/chat", {
       method: "POST",
       headers: {
@@ -30,10 +30,11 @@ export default async function handler(req, res) {
 
     const data = await chatbaseResponse.json();
 
-    // Safely extract the reply text from Chatbase response
-    const reply = data.messages?.[0]?.content || data.reply || data.raw?.text || "我没听懂，请再说一次～";
+    // Directly prioritize the 'raw.text' from the response
+    const reply = data.raw?.text || data.messages?.[0]?.content || data.reply || "我没听懂，请再说一次～";
 
-    res.status(200).json({ reply, raw: data });  // Send the reply and raw data back to frontend
+    // Send reply and raw data back to frontend
+    res.status(200).json({ reply, raw: data });
 
   } catch (error) {
     console.error("❌ Chat API Error:", error);
