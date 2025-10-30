@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PandaBot 语音聊天</title>
+  <title>PandaBot Voice Chat</title>
   <style>
     body {
-      font-family: 'Microsoft YaHei', sans-serif;
+      font-family: 'Comic Sans MS', sans-serif;
       text-align: center;
       padding: 50px;
       background: linear-gradient(to bottom, #fefcea, #f1da36);
@@ -27,48 +27,34 @@
   </style>
 </head>
 <body>
-  <h1>PandaBot 🐼</h1>
-  <p>点击按钮，用中文说话，PandaBot 会以文字+语音回复你！</p>
-  <button id="startButton">🎤 开始聊天</button>
+  <h1>PandaBot 🐼 Voice Chat</h1>
+  <p>Click the button, speak in Chinese, and PandaBot will reply in text + voice!</p>
+  <button id="startButton">🎤 Start Chat</button>
   <div id="chatOutput"></div>
 
   <script>
-    // 检查浏览器支持
-    if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
-      alert("抱歉，你的浏览器不支持语音识别。请使用 Chrome 或 Edge。");
-    }
-
     const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
     recognition.lang = 'zh-CN';
     recognition.interimResults = false;
 
     recognition.onresult = (event) => {
       const userText = event.results[0][0].transcript;
-      appendChat('你', userText);
+      appendChat('You', userText);
       callServer(userText);
     };
 
-    recognition.onerror = (event) => {
-      appendChat('系统', '语音识别出错，请再试一次。');
-      console.error(event.error);
-    };
+    document.getElementById('startButton').onclick = () => recognition.start();
 
-    document.getElementById('startButton').addEventListener('click', () => {
-      recognition.start();
-    });
+    function speak(text) {
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.lang = 'zh-CN';
+      speechSynthesis.speak(utter);
+    }
 
     function appendChat(sender, text) {
       const c = document.getElementById('chatOutput');
       c.innerHTML += `<b>${sender}:</b> ${text}<br>`;
       c.scrollTop = c.scrollHeight;
-    }
-
-    function speak(text) {
-      if ('speechSynthesis' in window) {
-        const utter = new SpeechSynthesisUtterance(text);
-        utter.lang = 'zh-CN';
-        speechSynthesis.speak(utter);
-      }
     }
 
     async function callServer(message) {
@@ -80,18 +66,14 @@
           body: JSON.stringify({ userInput: message })
         });
         const data = await res.json();
-
-        // ✅ Always use raw.text from Chatbase
-        const reply = data.raw?.text || "我没听懂，请再说一次～";
-
+        const reply = data.reply || "我没听懂，请再说一次～";
         appendChat('PandaBot', reply);
-        speak(reply);
+        speak(reply);  // Speak PandaBot's reply
       } catch (err) {
-        appendChat('PandaBot', '服务器错误。');
+        appendChat('PandaBot', 'Server error.');
         console.error(err);
       }
     }
   </script>
 </body>
 </html>
-
