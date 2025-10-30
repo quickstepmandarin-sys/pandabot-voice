@@ -4,14 +4,35 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PandaBot 语音聊天</title>
+  <style>
+    body {
+      font-family: 'Microsoft YaHei', sans-serif;
+      text-align: center;
+      padding: 50px;
+      background: linear-gradient(to bottom, #fefcea, #f1da36);
+    }
+    h1 { font-size: 3em; color: #2a9d8f; }
+    #chatOutput {
+      margin-top: 30px; font-size: 18px; min-height: 200px;
+      background: #fff8dc; padding: 20px; border-radius: 20px;
+      width: 90%; max-width: 600px; margin: 0 auto;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2); overflow-y: auto; max-height: 400px;
+    }
+    button {
+      font-size: 20px; padding: 15px 30px; border-radius: 15px; border: none;
+      background-color: #f4a261; color: white; cursor: pointer;
+      box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+    }
+    button:hover { background-color: #e76f51; }
+  </style>
 </head>
 <body>
   <h1>PandaBot 🐼</h1>
+  <p>点击按钮，用中文说话，PandaBot 会以文字+语音回复你！</p>
   <button id="startButton">🎤 开始聊天</button>
   <div id="chatOutput"></div>
 
   <script>
-    // 检查浏览器是否支持
     if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
       alert("抱歉，你的浏览器不支持语音识别。请使用 Chrome 或 Edge。");
     }
@@ -58,7 +79,10 @@
           body: JSON.stringify({ userInput: message })
         });
         const data = await res.json();
+
+        // ✅ Correct reply extraction
         const reply = data.reply || data.raw?.text || "我没听懂，请再说一次～";
+
         appendChat('PandaBot', reply);
         speak(reply);
       } catch (err) {
