@@ -13,18 +13,25 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         chatbotId: "ecEShdeeohpTsAImfdGCW",
-        message: userInput, // ✅ Chatbase expects "message", not "messages"
+        message: userInput,
         stream: false,
       }),
     });
 
-    const data = await response.json();
-    console.log("📤 Chatbase raw reply:", data);
+    const text = await response.text();
+    console.log("📤 Raw Chatbase response text:", text);
 
-    // ✅ Chatbase returns { text: "..." }
-    const reply = data.text || "我没听懂，请再说一次～";
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch (err) {
+      console.error("⚠️ JSON parse failed:", err.message);
+      return res.status(500).json({ error: "Invalid JSON from Chatbase", raw: text });
+    }
 
-    res.status(200).json({ reply });
+    const reply = data.text || data.reply || data.response || "我没听懂，请再说一次～";
+
+    res.status(200).json({ reply, raw: data });
 
   } catch (error) {
     console.error("❌ Chat API Error:", error);
