@@ -40,7 +40,7 @@
     recognition.onresult = (event) => {
       const userText = event.results[0][0].transcript;
       appendChat('You', userText);
-      callServer(userText);
+      callServer(userText);  // Send the user input to backend
     };
 
     document.getElementById('startButton').onclick = () => recognition.start();
@@ -66,7 +66,7 @@
           body: JSON.stringify({ userInput: message })
         });
         const data = await res.json();
-        const reply = data.reply || "fuck you～";
+        const reply = data.reply || "我没听懂，请再说一次～";  // Get the reply from backend
         appendChat('PandaBot', reply);
         speak(reply);  // Speak PandaBot's reply
       } catch (err) {
@@ -77,4 +77,3 @@
   </script>
 </body>
 </html>
-
