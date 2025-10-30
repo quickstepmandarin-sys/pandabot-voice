@@ -1,8 +1,10 @@
 export default async function handler(req, res) {
   try {
+    // Parse incoming request
     const body = JSON.parse(req.body || "{}");
     const userInput = body.userInput || "你好";
 
+    // Send request to Chatbase
     const response = await fetch("https://www.chatbase.co/api/v1/chat", {
       method: "POST",
       headers: {
@@ -20,10 +22,19 @@ export default async function handler(req, res) {
 
     const data = await response.json();
 
-    // Use Chatbase text or fallback
-    const reply = data.text || data.reply || "我没听懂，请再说一次～";
+    // Extract text from Chatbase response
+    let reply = "我没听懂，请再说一次～";
 
-    res.status(200).json({ reply });
+    if (data.reply) {
+      reply = data.reply;
+    } else if (data.raw?.text) {
+      reply = data.raw.text;
+    } else if (data.messages?.[0]?.content) {
+      reply = data.messages[0].content;
+    }
+
+    // Return both the final reply and the raw data for frontend flexibility
+    res.status(200).json({ reply, raw: data });
 
   } catch (error) {
     console.error("❌ Chat API Error:", error);
