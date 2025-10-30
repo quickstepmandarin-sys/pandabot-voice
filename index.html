@@ -44,15 +44,47 @@
       callServer(userText);
     };
 
+    recognition.onerror = (event) => {
+      console.error("语音识别错误:", event.error);
+      appendChat('系统', '语音识别出错，请再试一次。');
+    };
+
     document.getElementById('startButton').onclick = () => recognition.start();
 
     // 语音合成
     function speak(text) {
-      const utter = new SpeechSynthesisUtterance(text);
-      utter.lang = 'zh-CN';
-      speechSynthesis.speak(utter);
+      if ('speechSynthesis' in window) {
+        const utter = new SpeechSynthesisUtterance(text);
+        utter.lang = 'zh-CN';
+        speechSynthesis.speak(utter);
+      }
     }
 
     // 添加聊天内容
     function appendChat(sender, text) {
-      const c = document.ge
+      const c = document.getElementById('chatOutput');
+      c.innerHTML += `<b>${sender}:</b> ${text}<br>`;
+      c.scrollTop = c.scrollHeight;
+    }
+
+    // 调用后台 API
+    async function callServer(message) {
+      appendChat('PandaBot', '...');
+      try {
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userInput: message })
+        });
+        const data = await res.json();
+        const reply = data.reply || "我没听懂，请再说一次～";
+        appendChat('PandaBot', reply);
+        speak(reply);
+      } catch (err) {
+        appendChat('PandaBot', '服务器错误。');
+        console.error(err);
+      }
+    }
+  </script>
+</body>
+</html>
