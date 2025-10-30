@@ -1,10 +1,14 @@
 export default async function handler(req, res) {
   try {
-    // Parse the incoming user input
+    // 解析前端发送的数据
     const body = JSON.parse(req.body || "{}");
     const userInput = body.userInput?.trim() || "你好";
 
-    // Chatbase API request
+    // 每次生成唯一的 conversationId 和 contactId
+    const conversationId = `conv_${Date.now()}`;
+    const contactId = `user_${Math.floor(Math.random() * 1000000)}`;
+
+    // 发送请求到 Chatbase
     const chatbaseResponse = await fetch("https://www.chatbase.co/api/v1/chat", {
       method: "POST",
       headers: {
@@ -12,10 +16,10 @@ export default async function handler(req, res) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        chatbotId: "ecEShdeeohpTsAImfdGCW",  // Your PandaBot Chatbase ID
-        messages: [
-          { role: "user", content: userInput }
-        ],
+        chatbotId: "ecEShdeeohpTsAImfdGCW", // PandaBot Chatbase ID
+        messages: [{ role: "user", content: userInput }],
+        conversationId,
+        contactId,
         model: "gpt-4o-mini",
         temperature: 0.7,
         stream: false
@@ -24,10 +28,8 @@ export default async function handler(req, res) {
 
     const data = await chatbaseResponse.json();
 
-    // ✅ Safely extract reply
-    // Chatbase may return the answer in data.messages[0].content or data.reply
-    let reply = "我没听懂，请再说一次～"; // fallback
-
+    // ✅ 提取 Chatbase 回复，优先使用 messages[0].content
+    let reply = "我没听懂，请再说一次～";
     if (data.messages?.[0]?.content) {
       reply = data.messages[0].content;
     } else if (data.reply) {
@@ -36,7 +38,7 @@ export default async function handler(req, res) {
       reply = data.raw.text;
     }
 
-    // Return reply + raw for debugging
+    // 返回给前端
     res.status(200).json({ reply, raw: data });
 
   } catch (error) {
