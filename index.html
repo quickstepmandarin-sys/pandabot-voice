@@ -8,62 +8,29 @@
     body {
       font-family: 'Comic Sans MS', sans-serif;
       text-align: center;
-      padding: 40px;
-      background: linear-gradient(to bottom, #fffbea, #ffe082);
-      color: #333;
+      padding: 50px;
+      background: linear-gradient(to bottom, #fefcea, #f1da36);
     }
-
-    h1 {
-      font-size: 2.5em;
-      color: #2a9d8f;
-      margin-bottom: 10px;
-    }
-
-    p {
-      font-size: 1.1em;
-      margin-bottom: 25px;
-    }
-
-    button {
-      font-size: 20px;
-      padding: 15px 30px;
-      border-radius: 15px;
-      border: none;
-      background-color: #f4a261;
-      color: white;
-      cursor: pointer;
-      box-shadow: 0 5px 10px rgba(0,0,0,0.2);
-      margin-bottom: 20px;
-    }
-
-    button:hover {
-      background-color: #e76f51;
-    }
-
+    h1 { font-size: 3em; color: #2a9d8f; }
     #chatOutput {
-      font-size: 18px;
-      line-height: 1.5;
-      background: #fff8dc;
-      padding: 20px;
-      border-radius: 15px;
-      width: 90%;
-      max-width: 600px;
-      margin: 0 auto;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-      overflow-y: auto;
-      max-height: 400px;
-      text-align: left;
-      display: block;
+      margin-top: 30px; font-size: 18px; min-height: 200px;
+      background: #fff8dc; padding: 20px; border-radius: 20px;
+      width: 90%; max-width: 600px; margin: 0 auto;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2); overflow-y: auto; max-height: 400px;
     }
+    button {
+      font-size: 20px; padding: 15px 30px; border-radius: 15px; border: none;
+      background-color: #f4a261; color: white; cursor: pointer;
+      box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+    }
+    button:hover { background-color: #e76f51; }
   </style>
 </head>
 <body>
   <h1>PandaBot 🐼</h1>
-  <p>点击按钮，说中文，PandaBot 会以文字和语音回复你！</p>
-
-  <button id="startButton">🎙️ 开始聊天</button>
-
-  <div id="chatOutput">（等待开始聊天…）</div>
+  <p>点击按钮，用中文说话，PandaBot 会用文字和语音回答！</p>
+  <button id="startButton">🎤 开始聊天</button>
+  <div id="chatOutput"></div>
 
   <script>
     const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
@@ -75,17 +42,13 @@
       appendChat('你', userText);
       callServer(userText);
     };
-
-    document.getElementById('startButton').onclick = () => {
-      recognition.start();
-    };
+    document.getElementById('startButton').onclick = () => recognition.start();
 
     function speak(text) {
       const utter = new SpeechSynthesisUtterance(text);
       utter.lang = 'zh-CN';
       speechSynthesis.speak(utter);
     }
-
     function appendChat(sender, text) {
       const c = document.getElementById('chatOutput');
       c.innerHTML += `<b>${sender}:</b> ${text}<br>`;
@@ -98,10 +61,10 @@
         const res = await fetch('/api/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userInput: message })
+          body: JSON.stringify({ userInput: message }) // ✅ 这里修正了
         });
         const data = await res.json();
-        const reply = data.reply || "抱歉，我听不懂。";
+        const reply = data.reply || "我没听懂，请再说一次～";
         appendChat('PandaBot', reply);
         speak(reply);
       } catch (err) {
