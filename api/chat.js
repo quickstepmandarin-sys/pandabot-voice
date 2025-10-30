@@ -23,14 +23,13 @@ export default async function handler(req, res) {
     const data = await response.json();
     console.log("📤 Chatbase raw reply:", data);
 
-    // Chatbase returns messages array
-    const reply = data.messages?.[0]?.content || "我没听懂，请再说一次～";
+    // ✅ Use the correct field
+    const reply = data.text || "我没听懂，请再说一次～";
 
-    res.status(200).json({ reply, raw: data });
+    res.status(200).json({ reply });
 
   } catch (error) {
     console.error("❌ Chat API Error:", error);
     res.status(500).json({ error: "Server Error", details: error.message });
   }
 }
-
