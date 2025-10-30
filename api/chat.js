@@ -13,18 +13,16 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         chatbotId: "ecEShdeeohpTsAImfdGCW",
-        messages: [{ role: "user", content: userInput }],
-        model: "gpt-4o-mini",
-        temperature: 0.7,
-        stream: false
+        message: userInput, // ✅ Chatbase expects "message", not "messages"
+        stream: false,
       }),
     });
 
     const data = await response.json();
-
     console.log("📤 Chatbase raw reply:", data);
 
-    const reply = data.messages?.[0]?.content || "我没听懂，请再说一次～";
+    // ✅ Chatbase returns { text: "..." }
+    const reply = data.text || "我没听懂，请再说一次～";
 
     res.status(200).json({ reply });
 
