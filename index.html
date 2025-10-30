@@ -6,7 +6,7 @@
   <title>PandaBot 语音聊天</title>
   <style>
     body {
-      font-family: 'Comic Sans MS', sans-serif;
+      font-family: 'Microsoft YaHei', sans-serif;
       text-align: center;
       padding: 50px;
       background: linear-gradient(to bottom, #fefcea, #f1da36);
@@ -28,11 +28,12 @@
 </head>
 <body>
   <h1>PandaBot 🐼</h1>
-  <p>点击按钮，用中文说话，PandaBot 会用文字和语音回答！</p>
+  <p>点击按钮，用中文说话，PandaBot 会以文字+语音回复你！</p>
   <button id="startButton">🎤 开始聊天</button>
   <div id="chatOutput"></div>
 
   <script>
+    // 语音识别
     const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
     recognition.lang = 'zh-CN';
     recognition.interimResults = false;
@@ -42,36 +43,16 @@
       appendChat('你', userText);
       callServer(userText);
     };
+
     document.getElementById('startButton').onclick = () => recognition.start();
 
+    // 语音合成
     function speak(text) {
       const utter = new SpeechSynthesisUtterance(text);
       utter.lang = 'zh-CN';
       speechSynthesis.speak(utter);
     }
-    function appendChat(sender, text) {
-      const c = document.getElementById('chatOutput');
-      c.innerHTML += `<b>${sender}:</b> ${text}<br>`;
-      c.scrollTop = c.scrollHeight;
-    }
 
-    async function callServer(message) {
-      appendChat('PandaBot', '...');
-      try {
-        const res = await fetch('/api/chat', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userInput: message }) // ✅ 这里修正了
-        });
-        const data = await res.json();
-        const reply = data.reply || "我没听懂，请再说一次～";
-        appendChat('PandaBot', reply);
-        speak(reply);
-      } catch (err) {
-        appendChat('PandaBot', '服务器错误。');
-        console.error(err);
-      }
-    }
-  </script>
-</body>
-</html>
+    // 添加聊天内容
+    function appendChat(sender, text) {
+      const c = document.ge
