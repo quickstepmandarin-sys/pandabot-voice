@@ -1,14 +1,11 @@
 export default async function handler(req, res) {
   try {
-    // 解析前端发送的数据
     const body = JSON.parse(req.body || "{}");
     const userInput = body.userInput?.trim() || "你好";
 
-    // 每次生成唯一的 conversationId 和 contactId
     const conversationId = `conv_${Date.now()}`;
     const contactId = `user_${Math.floor(Math.random() * 1000000)}`;
 
-    // 发送请求到 Chatbase
     const chatbaseResponse = await fetch("https://www.chatbase.co/api/v1/chat", {
       method: "POST",
       headers: {
@@ -16,7 +13,7 @@ export default async function handler(req, res) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        chatbotId: "ecEShdeeohpTsAImfdGCW", // PandaBot Chatbase ID
+        chatbotId: "ecEShdeeohpTsAImfdGCW",
         messages: [{ role: "user", content: userInput }],
         conversationId,
         contactId,
@@ -28,17 +25,9 @@ export default async function handler(req, res) {
 
     const data = await chatbaseResponse.json();
 
-    // ✅ 提取 Chatbase 回复，优先使用 messages[0].content
-    let reply = "我没听懂，请再说一次～";
-    if (data.messages?.[0]?.content) {
-      reply = data.messages[0].content;
-    } else if (data.reply) {
-      reply = data.reply;
-    } else if (data.raw?.text) {
-      reply = data.raw.text;
-    }
+    // ✅ Prioritize raw.text for the frontend
+    const reply = data.raw?.text || data.messages?.[0]?.content || data.reply || "我没听懂，请再说一次～";
 
-    // 返回给前端
     res.status(200).json({ reply, raw: data });
 
   } catch (error) {
