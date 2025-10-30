@@ -13,23 +13,18 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         chatbotId: "ecEShdeeohpTsAImfdGCW",
-        message: userInput,
-        stream: false,
+        messages: [{ role: "user", content: userInput }],
+        model: "gpt-4o-mini",
+        temperature: 0.7,
+        stream: false
       }),
     });
 
-    const text = await response.text();
-    console.log("📤 Raw Chatbase response text:", text);
+    const data = await response.json();
+    console.log("📤 Chatbase raw reply:", data);
 
-    let data;
-    try {
-      data = JSON.parse(text);
-    } catch (err) {
-      console.error("⚠️ JSON parse failed:", err.message);
-      return res.status(500).json({ error: "Invalid JSON from Chatbase", raw: text });
-    }
-
-    const reply = data.text || data.reply || data.response || "我没听懂，请再说一次～";
+    // Chatbase returns messages array
+    const reply = data.messages?.[0]?.content || "我没听懂，请再说一次～";
 
     res.status(200).json({ reply, raw: data });
 
@@ -38,3 +33,4 @@ export default async function handler(req, res) {
     res.status(500).json({ error: "Server Error", details: error.message });
   }
 }
+
