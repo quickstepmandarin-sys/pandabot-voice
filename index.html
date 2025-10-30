@@ -33,6 +33,7 @@
   <div id="chatOutput"></div>
 
   <script>
+    // 检查浏览器支持
     if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
       alert("抱歉，你的浏览器不支持语音识别。请使用 Chrome 或 Edge。");
     }
@@ -80,8 +81,8 @@
         });
         const data = await res.json();
 
-        // ✅ Correct reply extraction
-        const reply = data.reply || data.raw?.text || "我没听懂，请再说一次～";
+        // ✅ Always use raw.text from Chatbase
+        const reply = data.raw?.text || "我没听懂，请再说一次～";
 
         appendChat('PandaBot', reply);
         speak(reply);
@@ -93,3 +94,4 @@
   </script>
 </body>
 </html>
+
