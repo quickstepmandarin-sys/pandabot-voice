@@ -4,39 +4,68 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PandaBot 语音聊天</title>
-  <style>
-    body {
-      font-family: 'Microsoft YaHei', sans-serif;
-      text-align: center;
-      padding: 50px;
-      background: linear-gradient(to bottom, #fefcea, #f1da36);
-    }
-    h1 { font-size: 3em; color: #2a9d8f; }
-    #chatOutput {
-      margin-top: 30px; font-size: 18px; min-height: 200px;
-      background: #fff8dc; padding: 20px; border-radius: 20px;
-      width: 90%; max-width: 600px; margin: 0 auto;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.2); overflow-y: auto; max-height: 400px;
-    }
-    button {
-      font-size: 20px; padding: 15px 30px; border-radius: 15px; border: none;
-      background-color: #f4a261; color: white; cursor: pointer;
-      box-shadow: 0 5px 10px rgba(0,0,0,0.2);
-    }
-    button:hover { background-color: #e76f51; }
-  </style>
 </head>
 <body>
   <h1>PandaBot 🐼</h1>
-  <p>点击按钮，用中文说话，PandaBot 会以文字+语音回复你！</p>
   <button id="startButton">🎤 开始聊天</button>
   <div id="chatOutput"></div>
 
   <script>
-    // 初始化语音识别
+    // 检查浏览器是否支持
+    if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+      alert("抱歉，你的浏览器不支持语音识别。请使用 Chrome 或 Edge。");
+    }
+
     const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
     recognition.lang = 'zh-CN';
     recognition.interimResults = false;
 
     recognition.onresult = (event) => {
       const userText = event.results[0][0].transcript;
+      appendChat('你', userText);
+      callServer(userText);
+    };
+
+    recognition.onerror = (event) => {
+      appendChat('系统', '语音识别出错，请再试一次。');
+      console.error(event.error);
+    };
+
+    document.getElementById('startButton').addEventListener('click', () => {
+      recognition.start();
+    });
+
+    function appendChat(sender, text) {
+      const c = document.getElementById('chatOutput');
+      c.innerHTML += `<b>${sender}:</b> ${text}<br>`;
+      c.scrollTop = c.scrollHeight;
+    }
+
+    function speak(text) {
+      if ('speechSynthesis' in window) {
+        const utter = new SpeechSynthesisUtterance(text);
+        utter.lang = 'zh-CN';
+        speechSynthesis.speak(utter);
+      }
+    }
+
+    async function callServer(message) {
+      appendChat('PandaBot', '...');
+      try {
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userInput: message })
+        });
+        const data = await res.json();
+        const reply = data.reply || data.raw?.text || "我没听懂，请再说一次～";
+        appendChat('PandaBot', reply);
+        speak(reply);
+      } catch (err) {
+        appendChat('PandaBot', '服务器错误。');
+        console.error(err);
+      }
+    }
+  </script>
+</body>
+</html>
