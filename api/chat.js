@@ -3,8 +3,6 @@ export default async function handler(req, res) {
     const body = JSON.parse(req.body || "{}");
     const userInput = body.userInput || "你好";
 
-    console.log("📥 User said:", userInput);
-
     const response = await fetch("https://www.chatbase.co/api/v1/chat", {
       method: "POST",
       headers: {
@@ -21,10 +19,9 @@ export default async function handler(req, res) {
     });
 
     const data = await response.json();
-    console.log("📤 Chatbase raw reply:", data);
 
-    // ✅ Use the correct field
-    const reply = data.text || "我没听懂，请再说一次～";
+    // Use Chatbase text or fallback
+    const reply = data.text || data.reply || "我没听懂，请再说一次～";
 
     res.status(200).json({ reply });
 
