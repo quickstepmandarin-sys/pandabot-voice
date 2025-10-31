@@ -24,6 +24,7 @@
       box-shadow: 0 5px 10px rgba(0,0,0,0.2);
     }
     button:hover { background-color: #e76f51; }
+    button:disabled { background-color: #ccc; cursor: not-allowed; }
   </style>
 </head>
 <body>
@@ -36,14 +37,42 @@
     const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
     recognition.lang = 'zh-CN';
     recognition.interimResults = false;
+    recognition.continuous = false;  // Explicit: One-shot listening
 
     recognition.onresult = (event) => {
       const userText = event.results[0][0].transcript;
+      console.log('Heard:', userText);  // Debug log
       appendChat('You', userText);
-      callServer(userText);  // Send the user input to backend
+      callServer(userText);
     };
 
-    document.getElementById('startButton').onclick = () => recognition.start();
+    recognition.onerror = (event) => {
+      console.error('Speech error:', event.error);  // Key: Logs the issue!
+      let errorMsg = 'Speech failed. ';
+      if (event.error === 'not-allowed') errorMsg += 'Mic access denied—check browser settings.';
+      else if (event.error === 'no-speech') errorMsg += 'No speech detected—speak louder.';
+      else if (event.error === 'network') errorMsg += 'Network issue—check connection.';
+      else errorMsg += `Error: ${event.error}`;
+      appendChat('PandaBot', errorMsg);
+      startButton.disabled = false;  // Re-enable button
+      startButton.textContent = '🎤 Start Chat';
+    };
+
+    recognition.onend = () => {
+      console.log('Speech ended');  // Debug: Normal end
+      startButton.disabled = false;
+      startButton.textContent = '🎤 Start Chat';
+      // Optional: Auto-restart after 1s silence? Uncomment below.
+      // setTimeout(() => recognition.start(), 1000);
+    };
+
+    const startButton = document.getElementById('startButton');
+    startButton.onclick = () => {
+      console.log('Starting speech...');  // Debug start
+      startButton.disabled = true;
+      startButton.textContent = '🎤 Listening...';
+      recognition.start();
+    };
 
     function speak(text) {
       const utter = new SpeechSynthesisUtterance(text);
@@ -66,9 +95,9 @@
           body: JSON.stringify({ userInput: message })
         });
         const data = await res.json();
-        const reply = data.reply || "我没听懂，请再说一次～";  // Get the reply from backend
+        const reply = data.reply || "我没听懂，请再说一次～";
         appendChat('PandaBot', reply);
-        speak(reply);  // Speak PandaBot's reply
+        speak(reply);
       } catch (err) {
         appendChat('PandaBot', 'Server error.');
         console.error(err);
