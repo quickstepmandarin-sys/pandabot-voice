@@ -4,7 +4,7 @@ export default async function handler(req, res) {
     const body = JSON.parse(req.body || "{}");
     const userInput = body.userInput?.trim() || "你好";
 
-    // Generate unique conversationId and contactId
+    // Generate unique conversationId and contactId (optional, but keeping for continuity)
     const conversationId = `conv_${Date.now()}`;
     const contactId = `user_${Math.floor(Math.random() * 1000000)}`;
 
@@ -20,8 +20,8 @@ export default async function handler(req, res) {
         messages: [
           { role: "user", content: userInput }
         ],
-        conversationId,  // Added conversationId
-        contactId,       // Added contactId
+        conversationId,  // Optional
+        contactId,       // Optional
         model: "gpt-4o-mini",
         temperature: 0.7,
         stream: false
@@ -30,8 +30,11 @@ export default async function handler(req, res) {
 
     const data = await chatbaseResponse.json();
 
-    // Directly prioritize the 'raw.text' from the response
-    const reply = data.raw?.text || data.messages?.[0]?.content || data.reply || "我没听懂，请再说一次～";
+    // Log the full response for debugging (remove in production)
+    console.log("Chatbase raw response:", JSON.stringify(data, null, 2));
+
+    // Extract the actual reply from the 'text' field (per Chatbase docs)
+    const reply = data.text || "我没听懂，请再说一次～";
 
     // Send reply and raw data back to frontend
     res.status(200).json({ reply, raw: data });
