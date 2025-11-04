@@ -84,23 +84,21 @@
 
     const data = await res.json();
 
-    if (data.error) {
-      appendChat('🐼 PandaBot', '服务器错误。');
-      console.error("API Error:", data.error);
-      return;
-    }
-
+    // Use the correct reply text
     const reply = data.raw?.text || data.reply || "我没听懂，请再说一次～";
+
     appendChat('🐼 PandaBot', reply);
-    speak(reply);
+    speak(reply);  // Make it speak the reply
   } catch (err) {
     appendChat('🐼 PandaBot', '服务器错误。');
     console.error("Error calling API:", err);
   }
 }
 
+
   </script>
 </body>
 </html>
+
 
 
