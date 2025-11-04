@@ -3,76 +3,63 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PandaBot Voice Chat</title>
+  <title>PandaBot 语音聊天</title>
   <style>
     body {
       font-family: 'Comic Sans MS', sans-serif;
       text-align: center;
-      padding: 50px;
-      background: linear-gradient(to bottom, #fefcea, #f1da36);
+      padding: 40px;
+      background: linear-gradient(to bottom, #fff9e6, #ffe08c);
     }
-    h1 { font-size: 3em; color: #2a9d8f; }
+    h1 { font-size: 2.5em; color: #2a9d8f; margin-bottom: 10px; }
     #chatOutput {
-      margin-top: 30px; font-size: 18px; min-height: 200px;
-      background: #fff8dc; padding: 20px; border-radius: 20px;
-      width: 90%; max-width: 600px; margin: 0 auto;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.2); overflow-y: auto; max-height: 400px;
+      margin-top: 30px;
+      font-size: 18px;
+      min-height: 200px;
+      background: #fff;
+      padding: 20px;
+      border-radius: 20px;
+      width: 90%;
+      max-width: 600px;
+      margin: 0 auto;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+      overflow-y: auto;
+      max-height: 400px;
+      text-align: left;
     }
     button {
-      font-size: 20px; padding: 15px 30px; border-radius: 15px; border: none;
-      background-color: #f4a261; color: white; cursor: pointer;
+      font-size: 18px;
+      padding: 12px 28px;
+      border-radius: 12px;
+      border: none;
+      background-color: #f4a261;
+      color: white;
+      cursor: pointer;
       box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+      margin-top: 20px;
     }
     button:hover { background-color: #e76f51; }
-    button:disabled { background-color: #ccc; cursor: not-allowed; }
   </style>
 </head>
 <body>
-  <h1>PandaBot 🐼 Voice Chat</h1>
-  <p>Click the button, speak in Chinese, and PandaBot will reply in text + voice!</p>
-  <button id="startButton">🎤 Start Chat</button>
+  <h1>🐼 PandaBot</h1>
+  <p>点击按钮，用中文说话，PandaBot 会用语音回复你！</p>
+
+  <button id="startButton">🎙️ 开始聊天</button>
   <div id="chatOutput"></div>
 
   <script>
     const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
     recognition.lang = 'zh-CN';
     recognition.interimResults = false;
-    recognition.continuous = false;  // Explicit: One-shot listening
 
     recognition.onresult = (event) => {
       const userText = event.results[0][0].transcript;
-      console.log('Heard:', userText);  // Debug log
-      appendChat('You', userText);
+      appendChat('你', userText);
       callServer(userText);
     };
 
-    recognition.onerror = (event) => {
-      console.error('Speech error:', event.error);  // Key: Logs the issue!
-      let errorMsg = 'Speech failed. ';
-      if (event.error === 'not-allowed') errorMsg += 'Mic access denied—check browser settings.';
-      else if (event.error === 'no-speech') errorMsg += 'No speech detected—speak louder.';
-      else if (event.error === 'network') errorMsg += 'Network issue—check connection.';
-      else errorMsg += `Error: ${event.error}`;
-      appendChat('PandaBot', errorMsg);
-      startButton.disabled = false;  // Re-enable button
-      startButton.textContent = '🎤 Start Chat';
-    };
-
-    recognition.onend = () => {
-      console.log('Speech ended');  // Debug: Normal end
-      startButton.disabled = false;
-      startButton.textContent = '🎤 Start Chat';
-      // Optional: Auto-restart after 1s silence? Uncomment below.
-      // setTimeout(() => recognition.start(), 1000);
-    };
-
-    const startButton = document.getElementById('startButton');
-    startButton.onclick = () => {
-      console.log('Starting speech...');  // Debug start
-      startButton.disabled = true;
-      startButton.textContent = '🎤 Listening...';
-      recognition.start();
-    };
+    document.getElementById('startButton').onclick = () => recognition.start();
 
     function speak(text) {
       const utter = new SpeechSynthesisUtterance(text);
@@ -87,22 +74,27 @@
     }
 
     async function callServer(message) {
-      appendChat('PandaBot', '...');
+      appendChat('🐼 PandaBot', '...');
       try {
         const res = await fetch('/api/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ userInput: message })
         });
+
         const data = await res.json();
-        const reply = data.reply || "我没听懂，请再说一次～";
-        appendChat('PandaBot', reply);
+
+        // ✅ Use raw.text if available
+        const reply = data.raw?.text || data.reply || "我没听懂，请再说一次～";
+
+        appendChat('🐼 PandaBot', reply);
         speak(reply);
       } catch (err) {
-        appendChat('PandaBot', 'Server error.');
+        appendChat('🐼 PandaBot', '服务器错误。');
         console.error(err);
       }
     }
   </script>
 </body>
 </html>
+
