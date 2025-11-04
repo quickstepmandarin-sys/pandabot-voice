@@ -8,16 +8,19 @@ export default async function handler(req, res) {
   try {
     const { message } = req.body;
 
-    // ✅ Simulate backend logic
-    // Replace this with your actual model or external API logic
-    const aiResponse = {
-      text: "你好！(Nǐ hǎo! That means “Hello!”) 🐼 How are you today?",
-    };
+    // ✅ Call your actual AI backend (example)
+    const response = await fetch("https://pandabot-voice.vercel.app/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message }),
+    });
 
-    // ✅ Always reply using aiResponse.text, not fallback
+    const data = await response.json();
+    const replyText = data?.raw?.text || data?.reply || "我没听懂，请再说一次～";
+
     res.status(200).json({
-      reply: aiResponse.text,
-      raw: aiResponse,
+      reply: replyText,
+      raw: data.raw,
     });
   } catch (err) {
     console.error("Chat API error:", err);
