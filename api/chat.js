@@ -1,44 +1,29 @@
 export default async function handler(req, res) {
-  try {
-    // Parse the user input from frontend
-    const body = JSON.parse(req.body || "{}");
-    const userInput = body.userInput?.trim() || "你好";
-
-    // Generate unique conversationId and contactId
-    const conversationId = `conv_${Date.now()}`;
-    const contactId = `user_${Math.floor(Math.random() * 1000000)}`;
-
-    // Send request to Chatbase
-    const chatbaseResponse = await fetch("https://www.chatbase.co/api/v1/chat", {
-      method: "POST",
-      headers: {
-        "Authorization": "Bearer 8538bc13-cf10-41b1-8e82-35333680173b",  // Your Chatbase API Key
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        chatbotId: "ecEShdeeohpTsAImfdGCW",  // Your Chatbase chatbot ID
-        messages: [
-          { role: "user", content: userInput }
-        ],
-        conversationId,  // Added conversationId
-        contactId,       // Added contactId
-        model: "gpt-4o-mini",
-        temperature: 0.7,
-        stream: false
-      }),
+  if (req.method !== "POST") {
+    return res.status(200).json({
+      reply: "你好！(Nǐ hǎo! That means “Hello!”) 🐼 How are you today?",
     });
+  }
 
-    const data = await chatbaseResponse.json();
+  try {
+    const { message } = req.body;
 
-    // Directly prioritize the 'raw.text' from the response
-    const reply = data.raw?.text || data.messages?.[0]?.content || data.reply || "我没听懂，请再说一次～";
+    // ✅ Simulate backend logic
+    // Replace this with your actual model or external API logic
+    const aiResponse = {
+      text: "你好！(Nǐ hǎo! That means “Hello!”) 🐼 How are you today?",
+    };
 
-    // Send reply and raw data back to frontend
-    res.status(200).json({ reply, raw: data });
-
-  } catch (error) {
-    console.error("❌ Chat API Error:", error);
-    res.status(500).json({ error: "Server Error", details: error.message });
+    // ✅ Always reply using aiResponse.text, not fallback
+    res.status(200).json({
+      reply: aiResponse.text,
+      raw: aiResponse,
+    });
+  } catch (err) {
+    console.error("Chat API error:", err);
+    res.status(500).json({
+      reply: "糟糕，伺服器出現問題了 😢",
+      raw: { error: err.message },
+    });
   }
 }
-
