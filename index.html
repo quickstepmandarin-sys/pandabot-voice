@@ -27,18 +27,26 @@
       max-height: 400px;
       text-align: left;
     }
-    button {
+    button, .buyCoffeeBtn, .bookBtn {
       font-size: 18px;
       padding: 12px 28px;
       border-radius: 12px;
       border: none;
-      background-color: #f4a261;
-      color: white;
       cursor: pointer;
       box-shadow: 0 5px 10px rgba(0,0,0,0.2);
-      margin-top: 20px;
+      margin-top: 15px;
+      text-decoration: none;
+      display: inline-block;
     }
+    button { background-color: #f4a261; color: white; }
     button:hover { background-color: #e76f51; }
+    .buyCoffeeBtn { background-color: #ff813f; color: white; }
+    .buyCoffeeBtn:hover { background-color: #e76f51; }
+    .bookBtn { background-color: #2a9d8f; color: white; margin: 5px; }
+    .bookBtn:hover { background-color: #1f7a6f; }
+    #monetization { margin-top: 40px; }
+    #books { margin-top: 30px; }
+    .bookContainer { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; }
   </style>
 </head>
 <body>
@@ -48,6 +56,21 @@
   <button id="startButton">🎙️ 开始聊天</button>
   <div id="chatOutput"></div>
 
+  <!-- Monetization Section -->
+  <div id="monetization">
+    <h2>支持我们 ☕</h2>
+    <a href="https://www.buymeacoffee.com/quickstepmandarin" target="_blank" class="buyCoffeeBtn">Buy Me a Coffee</a>
+  </div>
+
+  <!-- Book Promotion Section -->
+  <div id="books">
+    <h2>我的书籍 📚</h2>
+    <div class="bookContainer">
+      <a href="https://www.amazon.com/dp/B0FRQKHD2Q" target="_blank" class="bookBtn">Laugh, Play & Learn Chinese</a>
+      <a href="https://www.amazon.com/dp/B0D9WMGVJ5" target="_blank" class="bookBtn">Quickstep Mandarin System</a>
+    </div>
+  </div>
+
   <script>
     const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
     recognition.lang = 'zh-CN';
@@ -56,15 +79,15 @@
     recognition.onresult = (event) => {
       const userText = event.results[0][0].transcript;
       appendChat('你', userText);
-      callServer(userText);
+      callServer(userText);  // Send user's message to the server
     };
 
     document.getElementById('startButton').onclick = () => recognition.start();
 
     function speak(text) {
-      const utter = new SpeechSynthesisUtterance(text);
-      utter.lang = 'zh-CN';
-      speechSynthesis.speak(utter);
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'zh-CN';
+      speechSynthesis.speak(utterance);
     }
 
     function appendChat(sender, text) {
@@ -74,31 +97,24 @@
     }
 
     async function callServer(message) {
-  appendChat('🐼 PandaBot', '...');
-  try {
-    const res = await fetch('/api/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userInput: message })
-    });
+      appendChat('🐼 PandaBot', '...');
+      try {
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userInput: message })
+        });
 
-    const data = await res.json();
+        const data = await res.json();
+        const reply = data.raw?.text || data.reply || "我没听懂，请再说一次～";
 
-    // Use the correct reply text
-    const reply = data.raw?.text || data.reply || "我没听懂，请再说一次～";
-
-    appendChat('🐼 PandaBot', reply);
-    speak(reply);  // Make it speak the reply
-  } catch (err) {
-    appendChat('🐼 PandaBot', '服务器错误。');
-    console.error("Error calling API:", err);
-  }
-}
-
-
+        appendChat('🐼 PandaBot', reply);
+        speak(reply);  // Make it speak the reply
+      } catch (err) {
+        appendChat('🐼 PandaBot', '服务器错误。');
+        console.error("Error calling API:", err);
+      }
+    }
   </script>
 </body>
 </html>
-
-
-
