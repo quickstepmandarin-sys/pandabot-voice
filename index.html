@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PandaBot 语音聊天</title>
+  <title>PandaBot 语音聊天 - 用 AI 学中文</title>
   <style>
     body {
       font-family: 'Comic Sans MS', sans-serif;
@@ -11,7 +11,14 @@
       padding: 40px;
       background: linear-gradient(to bottom, #fff9e6, #ffe08c);
     }
-    h1 { font-size: 2.5em; color: #2a9d8f; margin-bottom: 10px; }
+    h1 { font-size: 2.8em; color: #2a9d8f; margin-bottom: 10px; }
+    p.intro {
+      font-size: 18px;
+      line-height: 1.6;
+      max-width: 700px;
+      margin: 0 auto 30px auto;
+      color: #333;
+    }
     #chatOutput {
       margin-top: 30px;
       font-size: 18px;
@@ -51,7 +58,11 @@
 </head>
 <body>
   <h1>🐼 PandaBot</h1>
-  <p>点击按钮，用中文说话，PandaBot 会用语音回复你！</p>
+  <p class="intro">
+    欢迎来到 PandaBot —— 你的 AI 中文学习伙伴！🎉  
+    无论你是零基础还是想快速提升中文会话能力，PandaBot 都能实时与你交流，帮助你练习口语、理解中文句型，并用语音即时回复，让学习变得生动、有趣、高效！  
+    立即开始聊天，开启你的 AI 中文学习之旅吧！
+  </p>
 
   <button id="startButton">🎙️ 开始聊天</button>
   <div id="chatOutput"></div>
@@ -64,9 +75,9 @@
 
   <!-- Book Promotion Section -->
   <div id="books">
-    <h2>我的书籍 📚</h2>
+    <h2>推荐书籍 📚</h2>
     <div class="bookContainer">
-      <a href=" https://quickstepmandarin-sys.github.io/kids-landing-page/" target="_blank" class="bookBtn">Laugh, Play & Learn Chinese</a>
+      <a href="https://quickstepmandarin-sys.github.io/kids-landing-page/" target="_blank" class="bookBtn">Laugh, Play & Learn Chinese</a>
       <a href="https://www.amazon.com/dp/B0D9WMGVJ5" target="_blank" class="bookBtn">Quickstep Mandarin System</a>
     </div>
   </div>
@@ -79,7 +90,7 @@
     recognition.onresult = (event) => {
       const userText = event.results[0][0].transcript;
       appendChat('你', userText);
-      callServer(userText);  // Send user's message to the server
+      callServer(userText);
     };
 
     document.getElementById('startButton').onclick = () => recognition.start();
@@ -109,13 +120,7 @@
         const reply = data.raw?.text || data.reply || "我没听懂，请再说一次～";
 
         appendChat('🐼 PandaBot', reply);
-        speak(reply);  // Make it speak the reply
+        speak(reply);
       } catch (err) {
-        appendChat('🐼 PandaBot', '服务器错误。');
-        console.error("Error calling API:", err);
-      }
-    }
-  </script>
-</body>
-</html>
-
+        appendChat('🐼 PandaBot', '糟糕，伺服器出現問題了。');
+        console.error("Error calling AP
