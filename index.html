@@ -59,23 +59,24 @@
 <body>
   <h1>🐼 PandaBot</h1>
   <p class="intro">
-    欢迎来到 PandaBot —— 你的 AI 中文学习伙伴！🎉  
-    无论你是零基础还是想快速提升中文会话能力，PandaBot 都能实时与你交流，帮助你练习口语、理解中文句型，并用语音即时回复，让学习变得生动、有趣、高效！  
-    立即开始聊天，开启你的 AI 中文学习之旅吧！
+    Welcome to PandaBot — your AI Chinese learning partner! 🎉  
+    Whether you're a beginner or want to improve your Chinese conversation skills, PandaBot is here to chat with you, help you understand Chinese sentences, and respond with voice in real time!  
+    Start chatting now and begin your Chinese learning journey with AI!  
+    现在就开始聊天吧！🐼
   </p>
 
-  <button id="startButton">🎙️ 开始聊天</button>
+  <button id="startButton">🎙️ Start Chatting</button>
   <div id="chatOutput"></div>
 
   <!-- Monetization Section -->
   <div id="monetization">
-    <h2>支持我们 ☕</h2>
+    <h2>Support Us ☕</h2>
     <a href="https://www.buymeacoffee.com/quickstepmandarin" target="_blank" class="buyCoffeeBtn">Buy Me a Coffee</a>
   </div>
 
   <!-- Book Promotion Section -->
   <div id="books">
-    <h2>推荐书籍 📚</h2>
+    <h2>My Books 📚</h2>
     <div class="bookContainer">
       <a href="https://quickstepmandarin-sys.github.io/kids-landing-page/" target="_blank" class="bookBtn">Laugh, Play & Learn Chinese</a>
       <a href="https://www.amazon.com/dp/B0D9WMGVJ5" target="_blank" class="bookBtn">Quickstep Mandarin System</a>
@@ -123,4 +124,9 @@
         speak(reply);
       } catch (err) {
         appendChat('🐼 PandaBot', '糟糕，伺服器出現問題了。');
-        console.error("Error calling AP
+        console.error("Error calling API:", err);
+      }
+    }
+  </script>
+</body>
+</html>
