@@ -1,53 +1,37 @@
 export default async function handler(req, res) {
   if (req.method !== "POST") {
-    return res.status(200).json({
-      reply: "你好！我是 PandaBot 🐼"
-    });
+    return res.status(405).json({ error: "Method not allowed" });
   }
 
   try {
-    const { userInput } = req.body;
-
-    console.log("📥 User:", userInput);
+    const body = req.body || {};
+    const userInput = body.query || "Hello";
+    const conversationId = `conv_${Date.now()}`;
+    const contactId = `user_${Math.floor(Math.random() * 1000000)}`;
 
     const response = await fetch("https://www.chatbase.co/api/v1/chat", {
       method: "POST",
       headers: {
-        "Authorization": "Bearer 8538bc13-cf10-41b1-8e82-35333680173b", // YOUR API KEY
-        "Content-Type": "application/json"
+        "Authorization": "Bearer 8538bc13-cf10-41b1-8e82-35333680173b",
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        chatbotId: "ecEShdeeohpTsAImfdGCW", // YOUR REAL Chatbot ID
-        messages: [
-          { role: "user", content: userInput }
-        ]
-      })
+        chatbotId: "ecEShdeeohpTsAImfdGCW",
+        messages: [{ role: "user", content: userInput }],
+        conversationId,
+        contactId,
+        model: "gpt-4o-mini",
+        temperature: 0.7,
+        stream: false
+      }),
     });
 
     const data = await response.json();
-    console.log("📤 Chatbase response:", data);
+    const reply = data.messages?.[0]?.content || "No reply from Chatbase";
 
-    // If Chatbase returns any error
-    if (!response.ok) {
-      return res.status(500).json({
-        reply: "Chatbase 發生錯誤 😢",
-        raw: data
-      });
-    }
-
-    // Chatbase ALWAYS returns text in: data.response.text
-    const reply = data?.response?.text || "我聽不懂～你再說一次？";
-
-    return res.status(200).json({
-      reply,
-      raw: data
-    });
-
-  } catch (err) {
-    console.error("❌ Server exception:", err);
-    return res.status(500).json({
-      reply: "伺服器爆炸了 💥",
-      raw: { error: err.message }
-    });
+    res.status(200).json({ reply });
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({ error: error.message });
   }
 }
